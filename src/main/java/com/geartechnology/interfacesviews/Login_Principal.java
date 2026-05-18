@@ -5,11 +5,12 @@
 package com.geartechnology.interfacesviews;
 import java.awt.Image;
 import javax.swing.ImageIcon;
-
+import org.springframework.stereotype.Component;
 /**
  *
  * @author cesarvillanueva
  */
+@Component
 public class Login_Principal extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Login_Principal.class.getName());
@@ -18,17 +19,31 @@ public class Login_Principal extends javax.swing.JFrame {
      * Creates new form Login_Principal
      */
     public Login_Principal() {
-        initComponents();
+ //Forzamos el estilo Nimbus para que respete los colores y diseño original del Jframe
+    try {
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                break;
+            }
+        }
+    } catch (Exception e) {
+        // Si hay algún problema, Java continuará con el estilo estándar sin romperse
+    }
 
-   // Centra la ventana en la pantalla
+    initComponents();
+
+    // Centra la ventana en la pantalla
     this.setLocationRelativeTo(null); 
-    // Llamamos a la ruta o lugar donde este la imagen y ussamos el método de escalado
+    
+    // Llamamos a la ruta o lugar donde este la imagen y usamos el método de escalado
     ajustarImagen(Logo, "/imagenes/Banner_Empresa.jpeg");
-}
 
-/**
- Este metodo ayuda demasiado a escalar imágenes a un JLabel de forma dinámica.
- */
+    btnregistrar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+    }
+
+// Este metodo ayuda demasiado a escalar imágenes a un JLabel de forma dinámica.
+
 private void ajustarImagen(javax.swing.JLabel label, String ruta) {
     java.awt.EventQueue.invokeLater(() -> {
         java.net.URL url = getClass().getResource(ruta);
@@ -130,6 +145,11 @@ private void ajustarImagen(javax.swing.JLabel label, String ruta) {
         btnregistrar.setForeground(new java.awt.Color(255, 255, 255));
         btnregistrar.setText("Registrarse");
         btnregistrar.setBorder(null);
+        btnregistrar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnregistrarMouseClicked(evt);
+            }
+        });
         jPanel1.add(btnregistrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 420, 90, 20));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 470, 510));
@@ -150,9 +170,72 @@ private void ajustarImagen(javax.swing.JLabel label, String ruta) {
     }//GEN-LAST:event_txtContraseñaActionPerformed
 
     private void btnIngresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIngresarActionPerformed
-        // TODO add your handling code here:
+       
+        String correo = txtUsuario.getText().trim();
+    String password = new String(txtContraseña.getPassword()).trim(); 
+
+    // Validación simple de campos vacíos y mensaje
+    if (correo.isEmpty() || password.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Por favor, complete su correo y contraseña.", "Campos Vacíos", javax.swing.JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    try {
+        // Conectamos de manera segura con el Bean de nuestro servicio de Spring Boot
+        com.geartechnology.sistema_ventas.services.EmpleadoService empleadoService = 
+            com.geartechnology.Principal.SistemaVentasApplication.getBean(com.geartechnology.sistema_ventas.services.EmpleadoService.class);
+        
+        // Ejecutamos la autenticación
+        com.geartechnology.sistema_ventas.entities.Empleados empleadoLogueado = empleadoService.autenticarEmpleado(correo, password);
+        
+        // Mensaje de que Bienvenida con los datos correspondientes
+        javax.swing.JOptionPane.showMessageDialog(this, "Bienvenido " + empleadoLogueado.getNombre() + " " + empleadoLogueado.getApellido(), "Inicio de Sesión Exitoso", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        
+        // Redirección al módulo del administrador 
+        com.geartechnology.sistemas_ventas.views.MantenedorProductos adminPanel = new com.geartechnology.sistemas_ventas.views.MantenedorProductos();
+        adminPanel.setVisible(true); 
+        
+        this.dispose(); // Cierra de forma limpia el Login
+        
+    } catch (Exception e) {
+        // Salta si la contraseña es errónea o el correo no existe en la Base de Datos Postgres
+        javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Autenticación", javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnIngresarActionPerformed
-   
+
+    private void btnregistrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnregistrarMouseClicked
+        try {
+        // Solicitamos de forma segura la instancia de Registro al contenedor de Spring Boot
+        com.geartechnology.interfacesviews.Registro_Principal registro = 
+            com.geartechnology.Principal.SistemaVentasApplication.getBean(com.geartechnology.interfacesviews.Registro_Principal.class);
+        
+        registro.setVisible(true); // Despliega la ventana de registro (que ya se centra sola)
+        this.dispose();            // Cierra y limpia la pantalla actual de Login
+        
+    } catch (Exception e) {
+        // Vía de escape tradicional en caso el arranque en frío experimente algún retraso
+        com.geartechnology.interfacesviews.Registro_Principal registro = new com.geartechnology.interfacesviews.Registro_Principal();
+        registro.setVisible(true);
+        this.dispose();
+    }
+    }//GEN-LAST:event_btnregistrarMouseClicked
+    
+    private void btnregistrar(java.awt.event.ActionEvent evt) {                                             
+    try {
+        // Solicitamos la instancia de Registro_Principal manejada por Spring Boot
+        com.geartechnology.interfacesviews.Registro_Principal registro = 
+            com.geartechnology.Principal.SistemaVentasApplication.getBean(com.geartechnology.interfacesviews.Registro_Principal.class);
+        
+        registro.setVisible(true); 
+        this.dispose();          
+        
+    } catch (Exception e) {
+        // Vía alterna tradicional por si el contexto experimenta alguna anomalía
+        com.geartechnology.interfacesviews.Registro_Principal registro = new com.geartechnology.interfacesviews.Registro_Principal();
+        registro.setVisible(true);
+        this.dispose();
+    }
+}
     /**
      * @param args the command line arguments
      */

@@ -3,11 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.geartechnology.interfacesviews;
-
+import org.springframework.stereotype.Component;
 /**
  *
  * @author cesarvillanueva
  */
+@Component
 public class Registro_Principal extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Registro_Principal.class.getName());
@@ -17,6 +18,19 @@ public class Registro_Principal extends javax.swing.JFrame {
      */
     public Registro_Principal() {
         initComponents();
+        this.setLocationRelativeTo(null);
+        
+        // 1. Bloqueamos la caja de contraseña para nadie pueda modificar
+    txtPassword_Regis.setEditable(false); 
+    
+    // 2. Creamos un evento para ver el cambio en tiempo real lo que se escribe en el DNI
+    txtDni.addKeyListener(new java.awt.event.KeyAdapter() {
+        @Override
+        public void keyReleased(java.awt.event.KeyEvent evt) {
+            // Cada vez que el usuario suelta una tecla en el DNI, se copia el texto en la contraseña
+            txtPassword_Regis.setText(txtDni.getText().trim());
+        }
+    });
     }
 
     /**
@@ -123,17 +137,17 @@ public class Registro_Principal extends javax.swing.JFrame {
                                 .addGap(15, 15, 15)
                                 .addComponent(jLabel4))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(46, 46, 46)
+                                .addGap(45, 45, 45)
                                 .addComponent(jLabel5)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtCorreo_El, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtPassword_Regis, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(txtPassword_Regis, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(146, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(217, 217, 217))
+                .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(193, 193, 193))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -158,13 +172,13 @@ public class Registro_Principal extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(txtCorreo_El)
                         .addGap(2, 2, 2)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txtPassword_Regis, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtPassword_Regis, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addGap(35, 35, 35)
-                .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(53, 53, 53))
+                .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -182,9 +196,77 @@ public class Registro_Principal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnRegistrarActionPerformed
+       
+        // 1. Validar que no dejen campos obligatorios vacíos
+    if (txtNombre.getText().trim().isEmpty() || 
+        txtApellido.getText().trim().isEmpty() || 
+        txtDni.getText().trim().isEmpty() || 
+        txtCorreo_El.getText().trim().isEmpty()) {
+        
+        javax.swing.JOptionPane.showMessageDialog(this, 
+            "Por favor, complete todos los campos obligatorios.", 
+            "Campos Vacíos", 
+            javax.swing.JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
+    try {
+        // 2. Instanciar la entidad con los datos de la interfaz
+    com.geartechnology.sistema_ventas.entities.Empleados nuevoEmpleado = new com.geartechnology.sistema_ventas.entities.Empleados();
+    nuevoEmpleado.setNombre(txtNombre.getText().trim());
+    nuevoEmpleado.setApellido(txtApellido.getText().trim());
+    nuevoEmpleado.setDni(txtDni.getText().trim());
+    nuevoEmpleado.setCorreoElectronico(txtCorreo_El.getText().trim());
+
+    nuevoEmpleado.setPassword(new String(txtPassword_Regis.getPassword()).trim());
+       // 3. Invocar al servicio de Spring Boot para guardar en Postgres
+com.geartechnology.sistema_ventas.services.EmpleadoService empleadoService = 
+    com.geartechnology.Principal.SistemaVentasApplication.getBean(com.geartechnology.sistema_ventas.services.EmpleadoService.class);
+        
+        empleadoService.registrarEmpleado(nuevoEmpleado);
+
+        // 4. Tu mensaje personalizado de éxito
+        javax.swing.JOptionPane.showMessageDialog(this, 
+            "Usuario registrado correctamente", 
+            "Éxito", 
+            javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        
+        regresarAlLogin();{
+            try {
+        com.geartechnology.interfacesviews.Login_Principal login = 
+            com.geartechnology.Principal.SistemaVentasApplication.getBean(com.geartechnology.interfacesviews.Login_Principal.class);
+        
+        login.setVisible(true); // Abre el Login de vuelta
+        this.dispose();         // Cierra el Registro
+    } catch (Exception e) {
+        new com.geartechnology.interfacesviews.Login_Principal().setVisible(true);
+        this.dispose();
+    }
+    }
+
+    } catch (Exception e) {
+        javax.swing.JOptionPane.showMessageDialog(this, 
+            "Error al registrar: " + e.getMessage(), 
+            "Error", 
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_btnRegistrarActionPerformed
+    
+private void regresarAlLogin() {
+    // Obtenemos la instancia del Login manejada por Spring Boot para no perder el contexto
+    try {
+        com.geartechnology.interfacesviews.Login_Principal login = 
+            com.geartechnology.Principal.SistemaVentasApplication.getBean(com.geartechnology.interfacesviews.Login_Principal.class);
+        
+        login.setVisible(true); // Hace visible la pantalla de Iniciar Sesión
+        this.dispose();         // Cierra y destruye la ventana actual de Registro
+    } catch (Exception e) {
+        // Si por alguna razón falla el contexto, lanzamos un New tradicional seguro
+        new com.geartechnology.interfacesviews.Login_Principal().setVisible(true);
+        this.dispose();
+    }
+}
+    
     private void txtNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombreActionPerformed
