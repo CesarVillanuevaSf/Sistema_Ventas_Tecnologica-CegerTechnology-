@@ -53,38 +53,105 @@ private void ajustarImagen(javax.swing.JLabel label, String ruta) {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        jPanel1 = new com.geartechnology.Diseño2D.PanelDegradado();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        txtUsuario = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        txtContraseña = new javax.swing.JPasswordField();
+        jLabel3 = new javax.swing.JLabel();
+        btnIngresar = new javax.swing.JButton();
+        btnregistrar = new javax.swing.JButton();
         Logo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jPanel1.setForeground(new java.awt.Color(200, 200, 200));
+        jPanel1.setOpaque(false);
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setFont(new java.awt.Font("Kefa III", 3, 48)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("INICIAR SESION");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, 370, 60));
+
+        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 22)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Contraseña:");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 240, -1, -1));
+
+        txtUsuario.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
+        txtUsuario.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtUsuario.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        txtUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUsuarioActionPerformed(evt);
+            }
+        });
+        jPanel1.add(txtUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 180, 300, 40));
+
+        jLabel4.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel4.setFont(new java.awt.Font("Times New Roman", 1, 22)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Correo Electronico:");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 130, -1, -1));
+
+        txtContraseña.setFont(new java.awt.Font("Helvetica Neue", 0, 16)); // NOI18N
+        txtContraseña.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtContraseña.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        txtContraseña.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtContraseñaActionPerformed(evt);
+            }
+        });
+        jPanel1.add(txtContraseña, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 280, 300, 40));
+
+        jLabel3.setFont(new java.awt.Font("Oriya Sangam MN", 1, 13)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("¿No tienes cuenta? dale aquí ➡️");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 420, 220, -1));
+
+        btnIngresar.setBackground(new java.awt.Color(74, 141, 215));
+        btnIngresar.setFont(new java.awt.Font("Kohinoor Devanagari", 1, 18)); // NOI18N
+        btnIngresar.setForeground(new java.awt.Color(255, 255, 255));
+        btnIngresar.setText("INGRESAR");
+        btnIngresar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnIngresarActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnIngresar, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 360, 240, 50));
+
+        btnregistrar.setBackground(new java.awt.Color(101, 130, 218));
+        btnregistrar.setFont(new java.awt.Font("Oriya Sangam MN", 1, 13)); // NOI18N
+        btnregistrar.setForeground(new java.awt.Color(255, 255, 255));
+        btnregistrar.setText("Registrarse");
+        btnregistrar.setBorder(null);
+        jPanel1.add(btnregistrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 420, 90, 20));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 470, 510));
 
         Logo.setMaximumSize(new java.awt.Dimension(100, 100));
         Logo.setMinimumSize(new java.awt.Dimension(100, 100));
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(444, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(Logo, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
-                .addGap(197, 197, 197))
-            .addComponent(Logo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
+        getContentPane().add(Logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(456, 0, 390, 510));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsuarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUsuarioActionPerformed
+
+    private void txtContraseñaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtContraseñaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtContraseñaActionPerformed
+
+    private void btnIngresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIngresarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnIngresarActionPerformed
    
     /**
      * @param args the command line arguments
@@ -115,6 +182,14 @@ private void ajustarImagen(javax.swing.JLabel label, String ruta) {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Logo;
+    private javax.swing.JButton btnIngresar;
+    private javax.swing.JButton btnregistrar;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPasswordField txtContraseña;
+    private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables
 }
