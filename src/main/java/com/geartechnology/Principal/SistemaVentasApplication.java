@@ -40,4 +40,8 @@ public class SistemaVentasApplication {
     public static <T> T getBean(Class<T> beanClass) {
         return springContext.getBean(beanClass);
     }
+    @org.springframework.context.annotation.Bean
+    public org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder passwordEncoder() {
+    return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+}
 }

@@ -16,7 +16,11 @@ public class Producto {
     
     @Column(name = "codigo_barra", length = 50, unique =true)
     private String codigoBarra;
-    
+    @Column(length = 50)
+    private String tipo; // Gamer, Oficina, Barato
+
+    @Column(length = 255)
+    private String descripcion; // comentario del producto
      //La función de nulllable significa que ese campo es obligatorio y si intentas completar sin llenar el campo sale error.
     //La columna por decir que colocamos que conlleva la tabla categoria
     @Column(nullable = false, length = 150)

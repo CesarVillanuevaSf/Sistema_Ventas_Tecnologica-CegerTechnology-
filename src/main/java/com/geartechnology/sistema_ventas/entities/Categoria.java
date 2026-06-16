@@ -21,4 +21,3 @@ public class Categoria {
     private String descripcion;
     
 }
-//Sistema de ventas integrado para periféricos informáticos, con un panel de administración de escritorio Java y una plataforma web orientada al cliente. Permite una gestión eficiente del inventario, el seguimiento de las ventas en tiempo real y una experiencia de compra en linea accesible para pequeñas y medianas empresas

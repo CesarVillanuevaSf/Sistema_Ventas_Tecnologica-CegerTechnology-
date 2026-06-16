@@ -192,14 +192,21 @@ private void ajustarImagen(javax.swing.JLabel label, String ruta) {
         javax.swing.JOptionPane.showMessageDialog(this, "Bienvenido " + empleadoLogueado.getNombre() + " " + empleadoLogueado.getApellido(), "Inicio de Sesión Exitoso", javax.swing.JOptionPane.INFORMATION_MESSAGE);
         
         // Redirección al módulo del administrador 
-        com.geartechnology.sistemas_ventas.views.MantenedorProductos adminPanel = new com.geartechnology.sistemas_ventas.views.MantenedorProductos();
-        adminPanel.setVisible(true); 
+        com.geartechnology.interfacesviews.Menu_Principal menu = 
+            new com.geartechnology.interfacesviews.Menu_Principal(empleadoLogueado);
+            menu.setVisible(true);
         
         this.dispose(); // Cierra de forma limpia el Login
         
     } catch (Exception e) {
         // Salta si la contraseña es errónea o el correo no existe en la Base de Datos Postgres
-        javax.swing.JOptionPane.showMessageDialog(this, e.getMessage(), "Error de Autenticación", javax.swing.JOptionPane.ERROR_MESSAGE);
+       javax.swing.JOptionPane.showMessageDialog(
+        this, 
+        e.getClass().getName() + "\n" + e.getMessage(), 
+        "Error de Autenticación", 
+        javax.swing.JOptionPane.ERROR_MESSAGE
+    );
+        e.printStackTrace();
     }
     }//GEN-LAST:event_btnIngresarActionPerformed
 
