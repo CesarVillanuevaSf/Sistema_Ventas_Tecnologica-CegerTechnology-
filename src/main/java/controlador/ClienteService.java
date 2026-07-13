@@ -29,4 +29,13 @@ public class ClienteService {
     public List<Cliente> buscarPorNombre(String nombre) {
         return clienteRepository.findByNombreContainingIgnoreCase(nombre);
     }
+    public void eliminarCliente(Long id) {
+        clienteRepository.deleteById(id);
+}
+
+    public Cliente buscarPorDni(String dni) {
+        return clienteRepository.findAll().stream()
+            .filter(c -> c.getDni().equals(dni))
+            .findFirst().orElse(null);
+    }
 }

@@ -371,13 +371,18 @@ public class Menu_Principal extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         panelCuadricula.add(btnReportes, gridBagConstraints);
 
-        btnConfiguracion.setText("Configuracion");
+        btnConfiguracion.setText("Clientes");
         btnConfiguracion.setBorderPainted(false);
         btnConfiguracion.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnConfiguracion.setMaximumSize(new java.awt.Dimension(165, 145));
         btnConfiguracion.setMinimumSize(new java.awt.Dimension(165, 145));
         btnConfiguracion.setPreferredSize(new java.awt.Dimension(165, 145));
         btnConfiguracion.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnConfiguracion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfiguracionActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
@@ -478,6 +483,11 @@ public class Menu_Principal extends javax.swing.JFrame {
        new MantenedorInformacion(empleadoActual).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnInformacionActionPerformed
+
+    private void btnConfiguracionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfiguracionActionPerformed
+       new Ventana_Clientes(empleadoActual).setVisible(true);
+       this.dispose();
+    }//GEN-LAST:event_btnConfiguracionActionPerformed
 
     
     public static void main(String args[]) {

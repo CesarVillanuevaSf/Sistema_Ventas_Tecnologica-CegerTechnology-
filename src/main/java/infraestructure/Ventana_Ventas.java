@@ -24,15 +24,13 @@ public class Ventana_Ventas extends javax.swing.JFrame {
     private DefaultTableModel modeloVentas;
     private DefaultTableModel modeloDetalle;
     private List<Detalle_Ventas> detallesActuales = new ArrayList<>();
+    private Cliente clienteActual = null;
 
     public Ventana_Ventas(Empleados empleado) {
         this.empleado = empleado;
-        this.ventaService = presentation.SistemaVentasApplication
-                .getBean(VentaService.class);
-        this.clienteService = presentation.SistemaVentasApplication
-                .getBean(ClienteService.class);
-        this.productoService = presentation.SistemaVentasApplication
-                .getBean(ProductoService.class);
+        this.ventaService   = presentation.SistemaVentasApplication.getBean(VentaService.class);
+        this.clienteService = presentation.SistemaVentasApplication.getBean(ClienteService.class);
+        this.productoService = presentation.SistemaVentasApplication.getBean(ProductoService.class);
 
         initComponents();
         this.setLocationRelativeTo(null);
@@ -43,7 +41,7 @@ public class Ventana_Ventas extends javax.swing.JFrame {
         configurarFooter();
         cargarTablaVentas();
         cargarTablaDetalle();
-        cargarCombos();
+        cargarComboProductos();
     }
 
     // ══════════════════════════════════════════════
@@ -169,25 +167,7 @@ public class Ventana_Ventas extends javax.swing.JFrame {
         tablaVentas.setSelectionForeground(Color.WHITE);
         tablaVentas.getColumnModel().getColumn(0).setMinWidth(0);
         tablaVentas.getColumnModel().getColumn(0).setMaxWidth(0);
-
         recargarTablaVentas();
-
-        // Al seleccionar venta → cargar detalles
-        tablaVentas.getSelectionModel().addListSelectionListener(e -> {
-            int fila = tablaVentas.getSelectedRow();
-            if (fila >= 0) {
-                Long id = (Long) modeloVentas.getValueAt(fila, 0);
-                modeloDetalle.setRowCount(0);
-                for (Detalle_Ventas d : ventaService.listarDetalles(id)) {
-                    modeloDetalle.addRow(new Object[]{
-                        d.getProducto() != null ? d.getProducto().getNombre() : "",
-                        d.getCantidad(),
-                        d.getPVentaUnitario(),
-                        d.getCantidad() * d.getPVentaUnitario()
-                    });
-                }
-            }
-        });
     }
 
     private void recargarTablaVentas() {
@@ -222,23 +202,7 @@ public class Ventana_Ventas extends javax.swing.JFrame {
         tablaDetalle.setSelectionForeground(Color.WHITE);
     }
 
-    private void cargarCombos() {
-        // Clientes
-        cmbCliente.removeAllItems();
-        cmbCliente.addItem(null);
-        for (Cliente c : clienteService.listarClientes()) cmbCliente.addItem(c);
-        cmbCliente.setRenderer(new DefaultListCellRenderer() {
-            @Override public Component getListCellRendererComponent(JList<?> l,
-                    Object v, int i, boolean s, boolean f) {
-                super.getListCellRendererComponent(l, v, i, s, f);
-                setText(v instanceof Cliente
-                        ? ((Cliente)v).getNombre() + " " + ((Cliente)v).getApellido()
-                        : "Seleccione...");
-                return this;
-            }
-        });
-
-        // Productos
+    private void cargarComboProductos() {
         cmbProducto.removeAllItems();
         cmbProducto.addItem(null);
         for (Producto p : productoService.listarProductos()) cmbProducto.addItem(p);
@@ -250,8 +214,6 @@ public class Ventana_Ventas extends javax.swing.JFrame {
                 return this;
             }
         });
-
-        // Al seleccionar producto → precio automático
         cmbProducto.addActionListener(e -> {
             Producto p = (Producto) cmbProducto.getSelectedItem();
             if (p != null) {
@@ -265,23 +227,54 @@ public class Ventana_Ventas extends javax.swing.JFrame {
     }
 
     // ══════════════════════════════════════════════
+    //  BUSCAR CLIENTE POR DNI
+    // ══════════════════════════════════════════════
+    private void buscarClientePorDni() {
+        String dni = txtDniCliente.getText().trim();
+        if (dni.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese el DNI del cliente.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            List<Cliente> clientes = clienteService.listarClientes();
+            clienteActual = clientes.stream()
+                    .filter(c -> c.getDni().equals(dni))
+                    .findFirst().orElse(null);
+
+            if (clienteActual != null) {
+                lblNombreCliente.setText("✔ " + clienteActual.getNombre()
+                        + " " + clienteActual.getApellido());
+                lblNombreCliente.setForeground(new Color(46, 139, 87));
+            } else {
+                lblNombreCliente.setText("✘ Cliente no encontrado");
+                lblNombreCliente.setForeground(new Color(178, 34, 34));
+                clienteActual = null;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // ══════════════════════════════════════════════
     //  ACCIONES
     // ══════════════════════════════════════════════
     private void agregarProductoDetalle() {
         Producto p = (Producto) cmbProducto.getSelectedItem();
         if (p == null) {
-            JOptionPane.showMessageDialog(this, "Seleccione un producto.", "Aviso",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Seleccione un producto.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
-            int cantidad = Integer.parseInt(txtCantidad.getText().trim());
-            double precio = Double.parseDouble(txtPrecioUnitario.getText().trim());
+            int cantidad    = Integer.parseInt(txtCantidad.getText().trim());
+            double precio   = Double.parseDouble(txtPrecioUnitario.getText().trim());
 
             if (cantidad <= 0 || precio <= 0) {
                 JOptionPane.showMessageDialog(this,
-                        "Cantidad y precio deben ser mayores a cero.", "Aviso",
-                        JOptionPane.WARNING_MESSAGE);
+                        "Cantidad y precio deben ser mayores a cero.",
+                        "Aviso", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -308,7 +301,7 @@ public class Ventana_Ventas extends javax.swing.JFrame {
     private void actualizarTotales() {
         double subtotal = detallesActuales.stream()
                 .mapToDouble(d -> d.getCantidad() * d.getPVentaUnitario()).sum();
-        double igv = subtotal * 0.18;
+        double igv   = subtotal * 0.18;
         double total = subtotal + igv;
         lblSubtotal.setText(String.format("Subtotal: S/ %.2f", subtotal));
         lblIgv.setText(String.format("IGV (18%%): S/ %.2f", igv));
@@ -316,23 +309,31 @@ public class Ventana_Ventas extends javax.swing.JFrame {
     }
 
     private void registrarVenta() {
+        if (clienteActual == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Busque y seleccione un cliente por DNI.", "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (detallesActuales.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Agregue al menos un producto.", "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String comprobante = (String) cmbComprobante.getSelectedItem();
+        if (comprobante.equals("Seleccione...")) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione el tipo de comprobante.", "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         try {
-            Cliente cliente = (Cliente) cmbCliente.getSelectedItem();
-            String comprobante = (String) cmbComprobante.getSelectedItem();
-            String nroComprobante = txtNroComprobante.getText().trim();
-
-            if (cliente == null || comprobante.equals("Seleccione...")) {
-                JOptionPane.showMessageDialog(this,
-                        "Seleccione cliente y tipo de comprobante.", "Aviso",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
             Ventas venta = new Ventas();
-            venta.setCliente(cliente);
+            venta.setCliente(clienteActual);
             venta.setEmpleado(empleado);
             venta.setComprobantePago(comprobante);
-            venta.setNumeroComprobante(nroComprobante);
+            venta.setNumeroComprobante(txtNroComprobante.getText().trim());
 
             ventaService.registrarVenta(venta, detallesActuales);
             recargarTablaVentas();
@@ -376,7 +377,10 @@ public class Ventana_Ventas extends javax.swing.JFrame {
     private void limpiarVenta() {
         detallesActuales.clear();
         modeloDetalle.setRowCount(0);
-        cmbCliente.setSelectedIndex(0);
+        clienteActual = null;
+        txtDniCliente.setText("");
+        lblNombreCliente.setText("--");
+        lblNombreCliente.setForeground(Color.GRAY);
         cmbComprobante.setSelectedIndex(0);
         txtNroComprobante.setText("");
         txtCantidad.setText("");
@@ -400,12 +404,12 @@ public class Ventana_Ventas extends javax.swing.JFrame {
         panelContenido.setBackground(new Color(242, 242, 242));
         panelContenido.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
-        // ── PANEL IZQUIERDA: NUEVA VENTA ─────────
-        JPanel panelNuevaVenta = new JPanel(new BorderLayout(0, 8));
-        panelNuevaVenta.setPreferredSize(new Dimension(380, 0));
-        panelNuevaVenta.setOpaque(false);
+        // ══ PANEL IZQUIERDA ══════════════════════
+        JPanel panelIzquierda = new JPanel(new BorderLayout(0, 8));
+        panelIzquierda.setPreferredSize(new Dimension(370, 0));
+        panelIzquierda.setOpaque(false);
 
-        // Formulario cabecera venta
+        // ── Sección: Nueva Venta ─────────────────
         JPanel panelFormVenta = new JPanel(new GridBagLayout());
         panelFormVenta.setBackground(Color.WHITE);
         panelFormVenta.setBorder(BorderFactory.createTitledBorder(
@@ -418,28 +422,54 @@ public class Ventana_Ventas extends javax.swing.JFrame {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 8, 6, 8);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.fill   = GridBagConstraints.HORIZONTAL;
 
-        cmbCliente      = new JComboBox<>();
-        cmbComprobante  = new JComboBox<>(
-                new String[]{"Seleccione...", "BOLETA", "FACTURA", "TICKET"});
+        // DNI cliente
+        txtDniCliente    = new JTextField(10);
+        JButton btnBuscarCliente = crearBoton("🔍", new Color(114, 145, 226));
+        btnBuscarCliente.setPreferredSize(new Dimension(45, 28));
+        btnBuscarCliente.addActionListener(e -> buscarClientePorDni());
+        txtDniCliente.addActionListener(e -> buscarClientePorDni());
+
+        JPanel panelDni = new JPanel(new BorderLayout(4, 0));
+        panelDni.setOpaque(false);
+        panelDni.add(txtDniCliente,    BorderLayout.CENTER);
+        panelDni.add(btnBuscarCliente, BorderLayout.EAST);
+
+        lblNombreCliente = new JLabel("--");
+        lblNombreCliente.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblNombreCliente.setForeground(Color.GRAY);
+
+        cmbComprobante    = new JComboBox<>(new String[]{
+            "Seleccione...", "BOLETA", "FACTURA", "TICKET"});
         txtNroComprobante = new JTextField(15);
 
-        Object[][] camposVenta = {
-            {"Cliente:",      cmbCliente},
-            {"Comprobante:",  cmbComprobante},
-            {"N° Comprobante:", txtNroComprobante}
-        };
-        for (int i = 0; i < camposVenta.length; i++) {
-            gbc.gridx = 0; gbc.gridy = i; gbc.weightx = 0;
-            JLabel lbl = new JLabel((String) camposVenta[i][0]);
-            lbl.setFont(new Font("SansSerif", Font.BOLD, 12));
-            panelFormVenta.add(lbl, gbc);
-            gbc.gridx = 1; gbc.weightx = 1.0;
-            panelFormVenta.add((Component) camposVenta[i][1], gbc);
-        }
+        // Agregar campos al formulario
+        int row = 0;
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
+        panelFormVenta.add(etiqueta("DNI Cliente:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        panelFormVenta.add(panelDni, gbc);
 
-        // Formulario agregar producto
+        row++;
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
+        panelFormVenta.add(etiqueta("Nombre:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        panelFormVenta.add(lblNombreCliente, gbc);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
+        panelFormVenta.add(etiqueta("Comprobante:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        panelFormVenta.add(cmbComprobante, gbc);
+
+        row++;
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
+        panelFormVenta.add(etiqueta("N° Comprobante:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        panelFormVenta.add(txtNroComprobante, gbc);
+
+        // ── Sección: Agregar Producto ────────────
         JPanel panelFormProducto = new JPanel(new GridBagLayout());
         panelFormProducto.setBackground(Color.WHITE);
         panelFormProducto.setBorder(BorderFactory.createTitledBorder(
@@ -452,13 +482,14 @@ public class Ventana_Ventas extends javax.swing.JFrame {
 
         GridBagConstraints gbc2 = new GridBagConstraints();
         gbc2.insets = new Insets(5, 8, 5, 8);
-        gbc2.fill = GridBagConstraints.HORIZONTAL;
+        gbc2.fill   = GridBagConstraints.HORIZONTAL;
 
-        cmbProducto      = new JComboBox<>();
-        txtCantidad      = new JTextField(10);
+        cmbProducto       = new JComboBox<>();
+        txtCantidad       = new JTextField(10);
         txtPrecioUnitario = new JTextField(10);
         txtPrecioUnitario.setEditable(false);
         txtPrecioUnitario.setBackground(new Color(230, 230, 230));
+
         lblStock = new JLabel("Stock: --");
         lblStock.setForeground(new Color(46, 139, 87));
         lblStock.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -471,33 +502,30 @@ public class Ventana_Ventas extends javax.swing.JFrame {
         };
         for (int i = 0; i < camposProducto.length; i++) {
             gbc2.gridx = 0; gbc2.gridy = i; gbc2.weightx = 0;
-            JLabel lbl = new JLabel((String) camposProducto[i][0]);
-            lbl.setFont(new Font("SansSerif", Font.BOLD, 12));
-            panelFormProducto.add(lbl, gbc2);
+            panelFormProducto.add(etiqueta((String) camposProducto[i][0]), gbc2);
             gbc2.gridx = 1; gbc2.weightx = 1.0;
             panelFormProducto.add((Component) camposProducto[i][1], gbc2);
         }
 
-        JButton btnAgregarDetalle = crearBoton("+ Agregar Producto",
-                new Color(70, 130, 180));
-        btnAgregarDetalle.addActionListener(e -> agregarProductoDetalle());
+        JButton btnAgregar = crearBoton("+ Agregar Producto", new Color(70, 130, 180));
+        btnAgregar.addActionListener(e -> agregarProductoDetalle());
         gbc2.gridx = 0; gbc2.gridy = camposProducto.length;
         gbc2.gridwidth = 2;
-        panelFormProducto.add(btnAgregarDetalle, gbc2);
+        panelFormProducto.add(btnAgregar, gbc2);
 
-        // Tabla detalle
+        // ── Sección: Productos en esta venta ─────
         tablaDetalle = new JTable();
         JScrollPane scrollDetalle = new JScrollPane(tablaDetalle);
         scrollDetalle.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(114, 145, 226), 2),
-                "Detalle de Venta",
+                "Productos en esta Venta",
                 javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                 javax.swing.border.TitledBorder.DEFAULT_POSITION,
                 new Font("SansSerif", Font.BOLD, 13),
                 new Color(114, 145, 226)));
-        scrollDetalle.setPreferredSize(new Dimension(0, 150));
+        scrollDetalle.setPreferredSize(new Dimension(0, 160));
 
-        // Totales
+        // ── Totales ──────────────────────────────
         JPanel panelTotales = new JPanel(new GridLayout(3, 1, 0, 3));
         panelTotales.setBackground(new Color(240, 245, 255));
         panelTotales.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
@@ -515,35 +543,44 @@ public class Ventana_Ventas extends javax.swing.JFrame {
         panelTotales.add(lblIgv);
         panelTotales.add(lblTotal);
 
-        // Botones finales
-        JPanel panelBotonesVenta = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 5));
-        panelBotonesVenta.setOpaque(false);
+        // ── Botones ──────────────────────────────
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 5));
+        panelBotones.setOpaque(false);
+
         JButton btnRegistrar = crearBoton("✔ Registrar Venta", new Color(46, 139, 87));
-        JButton btnLimpiar   = crearBoton("↺ Limpiar", new Color(128, 128, 128));
+        JButton btnLimpiar   = crearBoton("↺ Limpiar",          new Color(128, 128, 128));
         btnRegistrar.addActionListener(e -> registrarVenta());
         btnLimpiar.addActionListener(e   -> limpiarVenta());
-        panelBotonesVenta.add(btnRegistrar);
-        panelBotonesVenta.add(btnLimpiar);
-
-        panelNuevaVenta.add(panelFormVenta,    BorderLayout.NORTH);
-        panelNuevaVenta.add(panelFormProducto, BorderLayout.CENTER);
-        panelNuevaVenta.add(scrollDetalle,     BorderLayout.SOUTH);
+        panelBotones.add(btnRegistrar);
+        panelBotones.add(btnLimpiar);
 
         JPanel panelSur = new JPanel(new BorderLayout());
         panelSur.setOpaque(false);
-        panelSur.add(panelTotales,     BorderLayout.CENTER);
-        panelSur.add(panelBotonesVenta, BorderLayout.SOUTH);
+        panelSur.add(panelTotales, BorderLayout.CENTER);
+        panelSur.add(panelBotones, BorderLayout.SOUTH);
 
-        // ── PANEL DERECHA: HISTORIAL ─────────────
+        // Ensamblar izquierda
+        JPanel panelFormsApilados = new JPanel(new BorderLayout(0, 8));
+        panelFormsApilados.setOpaque(false);
+        panelFormsApilados.add(panelFormVenta,    BorderLayout.NORTH);
+        panelFormsApilados.add(panelFormProducto, BorderLayout.CENTER);
+
+        panelIzquierda.add(panelFormsApilados, BorderLayout.NORTH);
+        panelIzquierda.add(scrollDetalle,      BorderLayout.CENTER);
+        panelIzquierda.add(panelSur,           BorderLayout.SOUTH);
+
+        // ══ PANEL DERECHA: HISTORIAL ═════════════
         JPanel panelHistorial = new JPanel(new BorderLayout(0, 8));
         panelHistorial.setOpaque(false);
 
         JPanel panelBuscar = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         panelBuscar.setOpaque(false);
+
         txtBuscar = new JTextField(20);
         txtBuscar.setFont(new Font("SansSerif", Font.PLAIN, 13));
         JButton btnBuscar = crearBoton("🔍 Buscar", new Color(114, 145, 226));
         JButton btnAnular = crearBoton("✕ Anular Venta", new Color(178, 34, 34));
+
         btnBuscar.addActionListener(e -> {
             String txt = txtBuscar.getText().trim();
             modeloVentas.setRowCount(0);
@@ -555,8 +592,8 @@ public class Ventana_Ventas extends javax.swing.JFrame {
                 modeloVentas.addRow(new Object[]{
                     v.getCodVenta(), v.getComprobantePago(),
                     v.getNumeroComprobante(),
-                    v.getCliente() != null ? v.getCliente().getNombre()
-                            + " " + v.getCliente().getApellido() : "",
+                    v.getCliente() != null
+                            ? v.getCliente().getNombre() + " " + v.getCliente().getApellido() : "",
                     String.format("S/ %.2f", v.getSubtotal()),
                     String.format("S/ %.2f", v.getIgv()),
                     String.format("S/ %.2f", v.getTotal()),
@@ -566,6 +603,7 @@ public class Ventana_Ventas extends javax.swing.JFrame {
             }
         });
         btnAnular.addActionListener(e -> anularVenta());
+
         panelBuscar.add(new JLabel("Buscar cliente: "));
         panelBuscar.add(txtBuscar);
         panelBuscar.add(btnBuscar);
@@ -581,17 +619,12 @@ public class Ventana_Ventas extends javax.swing.JFrame {
                 new Font("SansSerif", Font.BOLD, 14),
                 new Color(114, 145, 226)));
 
-        panelHistorial.add(panelBuscar,   BorderLayout.NORTH);
-        panelHistorial.add(scrollVentas,  BorderLayout.CENTER);
+        panelHistorial.add(panelBuscar,  BorderLayout.NORTH);
+        panelHistorial.add(scrollVentas, BorderLayout.CENTER);
 
-        // ── ENSAMBLE FINAL ───────────────────────
-        JPanel panelIzquierda = new JPanel(new BorderLayout(0, 8));
-        panelIzquierda.setOpaque(false);
-        panelIzquierda.add(panelNuevaVenta, BorderLayout.CENTER);
-        panelIzquierda.add(panelSur,        BorderLayout.SOUTH);
-
+        // ══ ENSAMBLE FINAL ═══════════════════════
         panelContenido.add(panelIzquierda, BorderLayout.WEST);
-        panelContenido.add(panelHistorial,  BorderLayout.CENTER);
+        panelContenido.add(panelHistorial, BorderLayout.CENTER);
 
         panelPrincipal.add(panelCabecera,  BorderLayout.NORTH);
         panelPrincipal.add(panelContenido, BorderLayout.CENTER);
@@ -600,6 +633,12 @@ public class Ventana_Ventas extends javax.swing.JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(panelPrincipal);
         pack();
+    }
+
+    private JLabel etiqueta(String texto) {
+        JLabel lbl = new JLabel(texto);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 12));
+        return lbl;
     }
 
     private JButton crearBoton(String texto, Color color) {
@@ -617,10 +656,10 @@ public class Ventana_Ventas extends javax.swing.JFrame {
     //  VARIABLES
     // ══════════════════════════════════════════════
     private JPanel panelPrincipal, panelCabecera, panelFooter;
-    private JComboBox<Cliente> cmbCliente;
     private JComboBox<Producto> cmbProducto;
     private JComboBox<String> cmbComprobante;
-    private JTextField txtNroComprobante, txtCantidad, txtPrecioUnitario, txtBuscar;
-    private JLabel lblSubtotal, lblIgv, lblTotal, lblStock;
+    private JTextField txtDniCliente, txtNroComprobante, txtCantidad,
+                       txtPrecioUnitario, txtBuscar;
+    private JLabel lblNombreCliente, lblSubtotal, lblIgv, lblTotal, lblStock;
     private JTable tablaVentas, tablaDetalle;
 }
