@@ -51,8 +51,11 @@ public class Menu_Principal extends javax.swing.JFrame {
     
     //Metodo para esconder opciones que no sean ADMINISTRADOR
     if (!empleado.getRol().equals("ADMINISTRADOR")) {
-    btnEmpleados.setVisible(false);
-    btnConfiguracion.setVisible(false); // opcional, si también quieres ocultarlo
+    btnCompras.setVisible(false);
+    btnEmpleados.setVisible(false); 
+    btnReportes.setVisible(false);
+    btnInformacion.setVisible(false);
+    
 }
     this.setSize(1000, 720);
     this.setResizable(false);
@@ -518,7 +521,6 @@ public class Menu_Principal extends javax.swing.JFrame {
         java.net.URL urlIcono = getClass().getResource(rutaIcono);
         if (urlIcono != null) {
             javax.swing.ImageIcon imgIcono = new javax.swing.ImageIcon(urlIcono);
-            // Escalamos el ícono a 55x55 píxeles para que se acomode de forma ordenada
             java.awt.Image imgEscalada = imgIcono.getImage().getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
             boton.setIcon(new javax.swing.ImageIcon(imgEscalada));
         } else {

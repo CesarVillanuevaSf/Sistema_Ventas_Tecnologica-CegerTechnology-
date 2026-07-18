@@ -52,7 +52,7 @@ public class CompraService {
         if (compra.getProveedor() == null)
             throw new Exception("Debe seleccionar un proveedor.");
 
-        // Calcular total
+   
         double total = 0;
         for (Detalle_Compras d : detalles)
             total += d.getCantidad() * d.getPrecioUnitarioCompra();
